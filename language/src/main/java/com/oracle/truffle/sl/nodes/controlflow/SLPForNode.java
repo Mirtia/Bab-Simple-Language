@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2020, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2019, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * The Universal Permissive License (UPL), Version 1.0
@@ -38,58 +38,29 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+package com.oracle.truffle.sl.nodes.controlflow;
 
-package com.oracle.truffle.sl.parser;
+import com.oracle.truffle.api.Truffle;
+import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.nodes.BlockNode;
+import com.oracle.truffle.api.nodes.LoopNode;
+import com.oracle.truffle.api.nodes.NodeInfo;
+import com.oracle.truffle.sl.nodes.SLExpressionNode;
+import com.oracle.truffle.sl.nodes.SLStatementNode;
+import java.util.ArrayList;
+import java.util.List;
 
-import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
-import com.oracle.truffle.api.interop.ExceptionType;
-import com.oracle.truffle.api.interop.InteropLibrary;
-import com.oracle.truffle.api.exception.AbstractTruffleException;
-import com.oracle.truffle.api.interop.UnsupportedMessageException;
-import com.oracle.truffle.api.library.ExportLibrary;
-import com.oracle.truffle.api.library.ExportMessage;
-import com.oracle.truffle.api.source.Source;
-import com.oracle.truffle.api.source.SourceSection;
+@NodeInfo(shortName = "pfor", description = "The node implementing a pfor loop")
+public final class SLPForNode extends SLStatementNode {
 
-@ExportLibrary(InteropLibrary.class)
-public class SLParseError extends AbstractTruffleException {
-
-    public static final long serialVersionUID = 1L;
-    private final Source source;
-    private final int line;
-    private final int column;
-    private final int length;
-
-    public SLParseError(Source source, int line, int column, int length, String message) {
-        super(message);
-        this.source = source;
-        this.line = line;
-        this.column = column;
-        this.length = length;
+    private List<SLStatementNode> blocks;
+    public SLPForNode(List<SLStatementNode> blocks) {
+//        TODO: Execute all the blocks in parallel
     }
 
-    /**
-     * Note that any subclass of {@link AbstractTruffleException} must always return
-     * <code>true</code> for {@link InteropLibrary#isException(Object)}. That is why it is correct
-     * to export {@link #getExceptionType()} without implementing
-     * {@link InteropLibrary#isException(Object)}.
-     */
-    @ExportMessage
-    ExceptionType getExceptionType() {
-        return ExceptionType.PARSE_ERROR;
+    @Override
+    public void executeVoid(VirtualFrame frame) {
+
     }
 
-    @ExportMessage
-    boolean hasSourceLocation() {
-        return source != null;
-    }
-
-    @ExportMessage(name = "getSourceLocation")
-    @TruffleBoundary
-    SourceSection getSourceSection() throws UnsupportedMessageException {
-        if (source == null) {
-            throw UnsupportedMessageException.create();
-        }
-        return source.createSection(line, column, length);
-    }
 }

@@ -46,6 +46,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.oracle.truffle.sl.nodes.controlflow.*;
 import com.oracle.truffle.sl.runtime.SLStrings;
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.Token;
@@ -60,14 +61,6 @@ import com.oracle.truffle.sl.SLLanguage;
 import com.oracle.truffle.sl.nodes.SLExpressionNode;
 import com.oracle.truffle.sl.nodes.SLRootNode;
 import com.oracle.truffle.sl.nodes.SLStatementNode;
-import com.oracle.truffle.sl.nodes.controlflow.SLBlockNode;
-import com.oracle.truffle.sl.nodes.controlflow.SLBreakNode;
-import com.oracle.truffle.sl.nodes.controlflow.SLContinueNode;
-import com.oracle.truffle.sl.nodes.controlflow.SLDebuggerNode;
-import com.oracle.truffle.sl.nodes.controlflow.SLFunctionBodyNode;
-import com.oracle.truffle.sl.nodes.controlflow.SLIfNode;
-import com.oracle.truffle.sl.nodes.controlflow.SLReturnNode;
-import com.oracle.truffle.sl.nodes.controlflow.SLWhileNode;
 import com.oracle.truffle.sl.nodes.expression.SLAddNodeGen;
 import com.oracle.truffle.sl.nodes.expression.SLBigIntegerLiteralNode;
 import com.oracle.truffle.sl.nodes.expression.SLDivNodeGen;
@@ -192,7 +185,7 @@ public class SLNodeFactory {
             methodNodes.add(bodyNode);
             final int bodyEndPos = bodyNode.getSourceEndIndex();
             final SourceSection functionSrc = source.createSection(functionStartPos, bodyEndPos - functionStartPos);
-            final SLStatementNode methodBlock = finishBlock(methodNodes, parameterCount, functionBodyStartPos, bodyEndPos - functionBodyStartPos);
+            final SLStatementNode methodBlock = finishBlock(methodNodes, parameterCount, functionBodyStartPos, bodyEndPos - functionBodyStartPos, true);
             assert lexicalScope == null : "Wrong scoping of blocks in parser";
 
             final SLFunctionBodyNode functionBodyNode = new SLFunctionBodyNode(methodBlock);
@@ -214,12 +207,14 @@ public class SLNodeFactory {
         lexicalScope = new LexicalScope(lexicalScope);
     }
 
-    public SLStatementNode finishBlock(List<SLStatementNode> bodyNodes, int startPos, int length) {
-        return finishBlock(bodyNodes, 0, startPos, length);
+    public SLStatementNode finishBlock(List<SLStatementNode> bodyNodes, int startPos, int length, boolean scope) {
+        return finishBlock(bodyNodes, 0, startPos, length, scope);
     }
 
-    public SLStatementNode finishBlock(List<SLStatementNode> bodyNodes, int skipCount, int startPos, int length) {
-        lexicalScope = lexicalScope.outer;
+    public SLStatementNode finishBlock(List<SLStatementNode> bodyNodes, int skipCount, int startPos, int length, boolean scope) {
+        if (scope) {
+            lexicalScope = lexicalScope.outer;
+        }
 
         if (containsNull(bodyNodes)) {
             return null;
@@ -309,6 +304,45 @@ public class SLNodeFactory {
         final SLWhileNode whileNode = new SLWhileNode(conditionNode, bodyNode);
         whileNode.setSourceSection(start, end - start);
         return whileNode;
+    }
+
+        public SLStatementNode createPFor(Token pforToken, SLStatementNode bodyNode,
+                                      SLExpressionNode nameNode, SLExpressionNode startNode, SLExpressionNode endNode) {
+        if (bodyNode == null || nameNode == null || startNode == null || endNode == null) {
+            return null;
+        }
+        final int start = pforToken.getStartIndex();
+        final int end = bodyNode.getSourceEndIndex();
+        List<SLStatementNode> blocks = new ArrayList<SLStatementNode>();
+
+        TruffleString name = ((SLStringLiteralNode) nameNode).executeGeneric(null);
+        Long startValue = null, endValue = null;
+        try {
+            startValue = (Long)startNode.executeLong(null);
+            endValue = (Long)endNode.executeLong(null);
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        System.out.println("Start value: " + startValue + " End value: " + endValue);
+        for (long i = startValue; i < endValue; i++) {
+            List<SLStatementNode> statementNodes = new ArrayList<>();
+            startBlock();
+            SLExpressionNode iExpressionNode = new SLLongLiteralNode(i);
+
+            final Integer frameSlot = frameDescriptorBuilder.addSlot(FrameSlotKind.Illegal, name, null);
+            lexicalScope.locals.put(name, frameSlot);
+            final SLExpressionNode result = SLWriteLocalVariableNodeGen.create(iExpressionNode, frameSlot, nameNode, true);
+            statementNodes.add(result);
+            statementNodes.add(bodyNode);
+            SLStatementNode newBlock = finishBlock(statementNodes, 0, end - bodyNode.getSourceCharIndex(), end - bodyNode.getSourceCharIndex() + 1, false);
+            blocks.add(newBlock);
+        }
+        final SLPForNode slpForNode = new SLPForNode(blocks);
+
+        slpForNode.setSourceSection(start, end - start);
+        return slpForNode;
     }
 
     /**
