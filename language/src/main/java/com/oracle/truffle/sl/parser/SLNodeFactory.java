@@ -313,34 +313,18 @@ public class SLNodeFactory {
         }
         final int start = pforToken.getStartIndex();
         final int end = bodyNode.getSourceEndIndex();
-        List<SLStatementNode> blocks = new ArrayList<SLStatementNode>();
 
-        TruffleString name = ((SLStringLiteralNode) nameNode).executeGeneric(null);
-        Long startValue = null, endValue = null;
-        try {
-            startValue = (Long)startNode.executeLong(null);
-            endValue = (Long)endNode.executeLong(null);
+        Long endValue = (Long)endNode.executeGeneric(null);
+        List<SLStatementNode> statementNodes = new ArrayList<>();
 
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        startBlock();
+        SLExpressionNode iExpressionNode = new SLLongLiteralNode(0);
+        SLStatementNode assignmentNode = createAssignment(nameNode, iExpressionNode);
+        statementNodes.add(assignmentNode);
+        statementNodes.addAll(((SLBlockNode) bodyNode).getStatements());
+        SLBlockNode newBlock = (SLBlockNode) finishBlock(statementNodes,end - start, end - start + 1, true);
 
-        System.out.println("Start value: " + startValue + " End value: " + endValue);
-        for (long i = startValue; i < endValue; i++) {
-            List<SLStatementNode> statementNodes = new ArrayList<>();
-            startBlock();
-            SLExpressionNode iExpressionNode = new SLLongLiteralNode(i);
-
-            final Integer frameSlot = frameDescriptorBuilder.addSlot(FrameSlotKind.Illegal, name, null);
-            lexicalScope.locals.put(name, frameSlot);
-            final SLExpressionNode result = SLWriteLocalVariableNodeGen.create(iExpressionNode, frameSlot, nameNode, true);
-            statementNodes.add(result);
-            statementNodes.add(bodyNode);
-            SLStatementNode newBlock = finishBlock(statementNodes, 0, end - bodyNode.getSourceCharIndex(), end - bodyNode.getSourceCharIndex() + 1, false);
-            blocks.add(newBlock);
-        }
-        final SLPForNode slpForNode = new SLPForNode(blocks);
-
+        final SLPForNode slpForNode = new SLPForNode(newBlock, endValue);
         slpForNode.setSourceSection(start, end - start);
         return slpForNode;
     }

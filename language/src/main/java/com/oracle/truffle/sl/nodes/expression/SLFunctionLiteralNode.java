@@ -83,7 +83,7 @@ public final class SLFunctionLiteralNode extends SLExpressionNode {
         CompilerAsserts.partialEvaluationConstant(l);
 
         SLFunction function;
-        if (l.isSingleContext()) {
+        if (l != null && l.isSingleContext()) {
             function = this.cachedFunction;
             if (function == null) {
                 /* We are about to change a @CompilationFinal field. */

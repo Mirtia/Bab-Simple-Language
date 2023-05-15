@@ -366,7 +366,7 @@ public final class SLLanguage extends TruffleLanguage<SLContext> {
      * language gets more mature switch to {@link ContextPolicy#SHARED}.
      */
     @Override
-    protected void initializeMultipleContexts() {
+    public void initializeMultipleContexts() {
         singleContext.invalidate();
     }
 
