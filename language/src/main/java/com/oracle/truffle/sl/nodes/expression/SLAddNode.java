@@ -122,6 +122,7 @@ public abstract class SLAddNode extends SLBinaryNode {
         return concatNode.execute(toTruffleStringNodeLeft.execute(left), toTruffleStringNodeRight.execute(right), SLLanguage.STRING_ENCODING, true);
     }
 
+
     /**
      * Guard for TruffleString concatenation: returns true if either the left or the right operand
      * is a {@link TruffleString}.
