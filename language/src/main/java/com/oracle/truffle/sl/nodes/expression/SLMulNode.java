@@ -82,9 +82,7 @@ public abstract class SLMulNode extends SLBinaryNode {
         }
         return TruffleString.fromJavaStringUncached(newString.toString(), TruffleString.Encoding.UTF_16LE);
     }
-    protected boolean isString(Object a) {
-        return a instanceof TruffleString;
-    }
+    
     @Fallback
     protected Object typeError(Object left, Object right) {
         throw SLException.typeError(this, left, right);
