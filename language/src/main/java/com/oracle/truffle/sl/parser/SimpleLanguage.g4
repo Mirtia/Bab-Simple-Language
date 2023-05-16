@@ -177,6 +177,19 @@ statement [boolean inLoop] returns [SLStatementNode result]
 )
 ;
 
+array_init returns [SLStatementNode result]
+:
+'{'                                             { List<SLExpressionNode> exprList = new ArrayList<SLExpressionNode>(); }
+(
+expression                                      { exprList.add($expression.result); }
+(
+    ','
+    expression                                  { exprList.add($expression.result); }
+)*
+)?
+'}'                                             { $result = factory.createArray(exprList); }
+;
+
 for_statement returns [SLStatementNode result]
 :
 f='for'                                         { SLStatementNode assignmentNode = null;
@@ -306,7 +319,16 @@ factor returns [SLExpressionNode result]
 (
     IDENTIFIER                                  { SLExpressionNode assignmentName = factory.createStringLiteral($IDENTIFIER, false); }
     (
-        member_expression[null, null, assignmentName] { $result = $member_expression.result; }
+        member_expression[null, null, assignmentName, null] { $result = $member_expression.result; }
+    |
+       '{'
+        NUMERIC_LITERAL                             { SLExpressionNode index = factory.createNumericLiteral($NUMERIC_LITERAL); }
+        '}'
+        (
+            member_expression[null, null, assignmentName, index] { $result = $member_expression.result; }
+        |
+                                                { $result = factory.createArrayRead(assignmentName, index); }
+        )
     |
                                                 { $result = factory.createRead(assignmentName); }
     )
@@ -322,9 +344,10 @@ factor returns [SLExpressionNode result]
 ;
 
 
-member_expression [SLExpressionNode r, SLExpressionNode assignmentReceiver, SLExpressionNode assignmentName] returns [SLExpressionNode result]
+member_expression [SLExpressionNode r, SLExpressionNode assignmentReceiver, SLExpressionNode assignmentName, SLExpressionNode index] returns [SLExpressionNode result]
 :                                               { SLExpressionNode receiver = r;
-                                                  SLExpressionNode nestedAssignmentName = null; }
+                                                  SLExpressionNode nestedAssignmentName = null;
+                                                  }
 (
     '('                                         { List<SLExpressionNode> parameters = new ArrayList<>();
                                                   if (receiver == null) {
@@ -344,7 +367,7 @@ member_expression [SLExpressionNode r, SLExpressionNode assignmentReceiver, SLEx
     expression                                  { if (assignmentName == null) {
                                                       SemErr($expression.start, "invalid assignment target");
                                                   } else if (assignmentReceiver == null) {
-                                                      $result = factory.createAssignment(assignmentName, $expression.result);
+                                                      $result = (index != null) ? factory.createArrayWrite(assignmentName, index, $expression.result) : factory.createAssignment(assignmentName, $expression.result);
                                                   } else {
                                                       $result = factory.createWriteProperty(assignmentReceiver, assignmentName, $expression.result);
                                                   } }
@@ -363,9 +386,12 @@ member_expression [SLExpressionNode r, SLExpressionNode assignmentReceiver, SLEx
                                                 { nestedAssignmentName = $expression.result;
                                                   $result = factory.createReadProperty(receiver, nestedAssignmentName); }
     ']'
+|
+    '='
+    array_init                                  { $result = $array_init.result; }
 )
 (
-    member_expression[$result, receiver, nestedAssignmentName] { $result = $member_expression.result; }
+    member_expression[$result, receiver, nestedAssignmentName, index] { $result = $member_expression.result; }
 )?
 ;
 

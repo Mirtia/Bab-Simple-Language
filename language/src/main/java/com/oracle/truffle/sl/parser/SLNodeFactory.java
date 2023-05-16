@@ -45,9 +45,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
+import com.oracle.truffle.api.dsl.NodeChild;
+import com.oracle.truffle.api.object.Shape;
+import com.oracle.truffle.sl.nodes.array.*;
 import com.oracle.truffle.sl.nodes.controlflow.*;
+import com.oracle.truffle.sl.runtime.SLArrayObject;
 import com.oracle.truffle.sl.runtime.SLStrings;
+import com.oracle.truffle.sl.runtime.SLUndefined;
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.Token;
 
@@ -136,6 +142,8 @@ public class SLNodeFactory {
     /* State while parsing a block. */
     private LexicalScope lexicalScope;
     private final SLLanguage language;
+
+    private final Shape arrayShape = Shape.newBuilder().layout(SLArrayObject.class).build();
 
     public SLNodeFactory(SLLanguage language, Source source) {
         this.language = language;
@@ -306,7 +314,25 @@ public class SLNodeFactory {
         return whileNode;
     }
 
-        public SLStatementNode createPFor(Token pforToken, SLStatementNode bodyNode,
+    public SLStatementNode createArray(List<SLExpressionNode> expressionNodes) {
+       return new SLArrayLiteralNode(this.arrayShape, expressionNodes);
+    }
+
+    public SLStatementNode createArrayRead(SLExpressionNode arrayExpr, SLExpressionNode indexExpr) {
+        if (arrayExpr == null || indexExpr == null) {
+            return null;
+        }
+        return SLArrayReadNodeGen.create(arrayExpr, indexExpr);
+    }
+
+    public SLStatementNode createArrayWrite(SLExpressionNode arrayExpr, SLExpressionNode indexExpr, SLExpressionNode rvalueExpr) {
+        if (arrayExpr == null || indexExpr == null || rvalueExpr == null) {
+            return null;
+        }
+        return SLArrayWriteNodeGen.create(arrayExpr, indexExpr, rvalueExpr);
+    }
+
+    public SLStatementNode createPFor(Token pforToken, SLStatementNode bodyNode,
                                       SLExpressionNode nameNode, SLExpressionNode startNode, SLExpressionNode endNode) {
         if (bodyNode == null || nameNode == null || startNode == null || endNode == null) {
             return null;

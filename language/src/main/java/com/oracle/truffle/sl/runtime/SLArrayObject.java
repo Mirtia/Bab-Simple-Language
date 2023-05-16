@@ -86,10 +86,10 @@ public final class SLArrayObject extends DynamicObject {
     @ExportMessage
     Object readMember(String member,
                       @CachedLibrary("this") DynamicObjectLibrary objectLibrary) throws UnknownIdentifierException {
-        switch (member) {
-            case "length": return objectLibrary.getOrDefault(this, "length", 0);
-            default: throw UnknownIdentifierException.create(member);
+        if (member.equals("length")) {
+            return objectLibrary.getOrDefault(this, "length", 0);
         }
+        throw UnknownIdentifierException.create(member);
     }
 
     @ExportMessage

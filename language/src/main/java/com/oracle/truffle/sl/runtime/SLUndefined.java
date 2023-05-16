@@ -15,7 +15,7 @@ public final class SLUndefined implements TruffleObject {
 
     @Override
     public String toString() {
-        return "Undefined";
+        return "Null";
     }
 
     @ExportMessage
@@ -25,6 +25,6 @@ public final class SLUndefined implements TruffleObject {
 
     @ExportMessage
     Object toDisplayString(@SuppressWarnings("unused") boolean allowSideEffects) {
-        return "undefined";
+        return "null";
     }
 }
