@@ -9,7 +9,7 @@ import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.sl.SLException;
 import com.oracle.truffle.sl.nodes.SLExpressionNode;
-import com.oracle.truffle.sl.runtime.SLUndefined;
+import com.oracle.truffle.sl.runtime.SLNull;
 
 @NodeChild("arrayExpr")
 @NodeChild("indexExpr")
@@ -28,12 +28,12 @@ public abstract class SLArrayReadNode extends SLExpressionNode {
     protected Object indexUndefined(@SuppressWarnings("unused") Object target,
                                     Object index,
                                     @SuppressWarnings("unused") @CachedLibrary("target") InteropLibrary interopLibrary) {
-        throw new SLException("Cannot read properties of undefined (reading '" + index + "')", this);
+        throw new SLException("Cannot read properties of null (reading '" + index + "')", this);
     }
 
     @Fallback
     protected Object readNonArrayOrNonIntIndex(@SuppressWarnings("unused") Object array,
                                                @SuppressWarnings("unused") Object index) {
-        return SLUndefined.INSTANCE;
+        return SLNull.SINGLETON;
     }
 }

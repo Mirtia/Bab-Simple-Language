@@ -137,6 +137,7 @@ public abstract class SLToTruffleStringNode extends Node {
         }
     }
 
+
     @TruffleBoundary
     private static String bigNumberToString(SLBigNumber value) {
         return value.toString();

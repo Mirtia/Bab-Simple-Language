@@ -45,15 +45,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
-import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.object.Shape;
 import com.oracle.truffle.sl.nodes.array.*;
 import com.oracle.truffle.sl.nodes.controlflow.*;
-import com.oracle.truffle.sl.runtime.SLArrayObject;
 import com.oracle.truffle.sl.runtime.SLStrings;
-import com.oracle.truffle.sl.runtime.SLUndefined;
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.Token;
 
@@ -143,7 +139,7 @@ public class SLNodeFactory {
     private LexicalScope lexicalScope;
     private final SLLanguage language;
 
-    private final Shape arrayShape = Shape.newBuilder().layout(SLArrayObject.class).build();
+    private final Shape arrayShape = Shape.newBuilder().build();
 
     public SLNodeFactory(SLLanguage language, Source source) {
         this.language = language;

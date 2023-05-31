@@ -42,7 +42,7 @@ public final class SLArrayObject extends DynamicObject {
     Object readArrayElement(long index) {
         return this.isArrayElementReadable(index)
                 ? this.arrayElements[(int) index]
-                : SLUndefined.INSTANCE;
+                : SLNull.SINGLETON;
     }
 
     @ExportMessage
@@ -61,12 +61,11 @@ public final class SLArrayObject extends DynamicObject {
         if (this.isArrayElementModifiable(index)) {
             this.arrayElements[(int) index] = value;
         } else {
-            // in JavaScript, it's legal to write past the array size
             Object[] newArrayElements = new Object[(int) index + 1];
             for (int i = 0; i < index; i++) {
                 newArrayElements[i] = i < this.arrayElements.length
                         ? this.arrayElements[i]
-                        : SLUndefined.INSTANCE;
+                        : SLNull.SINGLETON;
             }
             newArrayElements[(int) index] = value;
             this.setArrayElements(newArrayElements, objectLibrary);

@@ -30,7 +30,7 @@ public abstract class SLArrayWriteNode extends SLExpressionNode {
     protected Object indexUndefined(@SuppressWarnings("unused") Object target,
                                     Object index, @SuppressWarnings("unused") Object rvalue,
                                     @SuppressWarnings("unused") @CachedLibrary("target") InteropLibrary interopLibrary) {
-        throw new SLException("Cannot set properties of undefined (setting '" + index + "')", this);
+        throw new SLException("Cannot set properties of null (setting '" + index + "')", this);
     }
 
     @Fallback
