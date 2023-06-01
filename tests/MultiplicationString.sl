@@ -1,9 +1,6 @@
-function e(a, b) {
-  return a == b;
-}
-
 function main() {  
-    j = "ab"*3;
-    println(e(j, "ababab"));
-    println(j);
+    j = "ab" * 3;
+    println("String is " + j);
+    k = 3 * "ab";
+    println("String is " + k);
 }  

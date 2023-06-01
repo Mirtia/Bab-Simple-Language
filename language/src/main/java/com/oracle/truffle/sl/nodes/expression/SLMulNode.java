@@ -73,14 +73,24 @@ public abstract class SLMulNode extends SLBinaryNode {
         return new SLBigNumber(left.getValue().multiply(right.getValue()));
     }
 
-    @Specialization
+    @Specialization(guards = "isStringandLong(left, right)")
     @TruffleBoundary
-    protected TruffleString mul(TruffleString left, long right) {
+    protected TruffleString mul(Object left, Object right) {
+        long length = right instanceof Long ? (long) right : (long) left;
+        TruffleString targetString = right instanceof TruffleString ? (TruffleString) right : (TruffleString) left;
         StringBuilder newString = new StringBuilder();
-        for (long i = 0; i < right; i++) {
-            newString.append(left.toString());
+        for (long i = 0; i < length; i++) {
+            newString.append(targetString);
         }
-        return TruffleString.fromJavaStringUncached(newString.toString(), TruffleString.Encoding.UTF_16LE);
+        return TruffleString.fromJavaStringUncached(newString.toString(), SLLanguage.STRING_ENCODING);
+    }
+
+    /**
+     * Guard for TruffleString multiplication: returns true if either the left or the right operand
+     * is a {@link TruffleString} and the left or right operand is of primitive type long.
+     */
+    protected boolean isStringandLong(Object a, Object b) {
+        return (a instanceof TruffleString && b instanceof  Long) || (a instanceof Long && b instanceof TruffleString);
     }
 
     @Fallback
