@@ -102,7 +102,7 @@ public abstract class SLWritePropertyNode extends SLExpressionNode {
                     @Cached SLToMemberNode asMember) {
         try {
             objectLibrary.writeMember(receiver, asMember.execute(name), value);
-        } catch (UnsupportedMessageException | UnknownIdentifierException | UnsupportedTypeException e) {
+            } catch (UnsupportedMessageException | UnknownIdentifierException | UnsupportedTypeException e) {
             // write was not successful. In SL we only have basic support for errors.
             throw SLUndefinedNameException.undefinedProperty(this, name);
         }

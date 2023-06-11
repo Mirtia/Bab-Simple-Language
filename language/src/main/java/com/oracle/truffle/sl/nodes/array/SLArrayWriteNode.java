@@ -16,8 +16,8 @@ import com.oracle.truffle.api.library.CachedLibrary;
 @NodeChild("rvalueExpr")
 public abstract class SLArrayWriteNode extends SLExpressionNode {
     @Specialization(guards = "arrayInteropLibrary.isArrayElementWritable(array, index)", limit = "1")
-    protected Object writeIntIndex(Object array, int index, Object rvalue,
-                                   @CachedLibrary("array") InteropLibrary arrayInteropLibrary) {
+    protected Object writeLongIndex(Object array, long index, Object rvalue,
+                                    @CachedLibrary("array") InteropLibrary arrayInteropLibrary) {
         try {
             arrayInteropLibrary.writeArrayElement(array, index, rvalue);
         } catch (UnsupportedMessageException | InvalidArrayIndexException | UnsupportedTypeException e) {

@@ -7,16 +7,21 @@ import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.InvalidArrayIndexException;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.library.CachedLibrary;
+import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.sl.SLException;
 import com.oracle.truffle.sl.nodes.SLExpressionNode;
+import com.oracle.truffle.sl.runtime.SLBigNumber;
 import com.oracle.truffle.sl.runtime.SLNull;
+
+import javax.swing.plaf.TreeUI;
+import java.math.BigInteger;
 
 @NodeChild("arrayExpr")
 @NodeChild("indexExpr")
 public abstract class SLArrayReadNode extends SLExpressionNode {
     @Specialization(guards = "arrayInteropLibrary.isArrayElementReadable(array, index)", limit = "1")
-    protected Object readIntIndex(Object array, int index,
-                                  @CachedLibrary("array") InteropLibrary arrayInteropLibrary) {
+    protected Object readLongIndex(Object array, long index,
+                                   @CachedLibrary("array") InteropLibrary arrayInteropLibrary) {
         try {
             return arrayInteropLibrary.readArrayElement(array, index);
         } catch (UnsupportedMessageException | InvalidArrayIndexException e) {
@@ -36,4 +41,5 @@ public abstract class SLArrayReadNode extends SLExpressionNode {
                                                @SuppressWarnings("unused") Object index) {
         return SLNull.SINGLETON;
     }
+
 }

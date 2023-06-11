@@ -1,26 +1,28 @@
 package com.oracle.truffle.sl.runtime;
 
 import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.interop.InvalidArrayIndexException;
 import com.oracle.truffle.api.interop.UnknownIdentifierException;
+import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.object.DynamicObjectLibrary;
 import com.oracle.truffle.api.object.Shape;
+import com.oracle.truffle.sl.SLException;
 
 
 @ExportLibrary(InteropLibrary.class)
 public final class SLArrayObject extends DynamicObject {
+    private final long length;
 
-    @DynamicField
-    private long length;
-
-    private Object[] arrayElements;
+    final private Object[] arrayElements;
 
     public SLArrayObject(Shape arrayShape, Object[] arrayElements) {
         super(arrayShape);
-        this.setArrayElements(arrayElements, DynamicObjectLibrary.getUncached());
+        this.length = arrayElements.length;
+        this.arrayElements = arrayElements;
     }
 
     @ExportMessage
@@ -46,29 +48,22 @@ public final class SLArrayObject extends DynamicObject {
     }
 
     @ExportMessage
-    boolean isArrayElementModifiable(long index) {
-        return this.isArrayElementReadable(index);
-    }
-
-    @ExportMessage
     boolean isArrayElementInsertable(long index) {
         return index >= this.arrayElements.length;
     }
 
     @ExportMessage
+    boolean isArrayElementModifiable(long index) {
+        return this.isArrayElementReadable(index);
+    }
+
+    @ExportMessage
     void writeArrayElement(long index, Object value,
-                           @CachedLibrary("this") DynamicObjectLibrary objectLibrary) {
+                           @CachedLibrary("this") DynamicObjectLibrary objectLibrary)  throws InvalidArrayIndexException {
         if (this.isArrayElementModifiable(index)) {
             this.arrayElements[(int) index] = value;
         } else {
-            Object[] newArrayElements = new Object[(int) index + 1];
-            for (int i = 0; i < index; i++) {
-                newArrayElements[i] = i < this.arrayElements.length
-                        ? this.arrayElements[i]
-                        : SLNull.SINGLETON;
-            }
-            newArrayElements[(int) index] = value;
-            this.setArrayElements(newArrayElements, objectLibrary);
+            throw InvalidArrayIndexException.create(index);
         }
     }
 
@@ -96,8 +91,4 @@ public final class SLArrayObject extends DynamicObject {
         return new SLArrayElements(new String[]{"length"});
     }
 
-    private void setArrayElements(Object[] arrayElements, DynamicObjectLibrary objectLibrary) {
-        this.arrayElements = arrayElements;
-        objectLibrary.putInt(this, "length", arrayElements.length);
-    }
 }

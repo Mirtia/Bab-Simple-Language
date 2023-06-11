@@ -388,7 +388,9 @@ member_expression [SLExpressionNode r, SLExpressionNode assignmentReceiver, SLEx
     ']'
 |
     '='
-    array_init                                  { $result = $array_init.result; }
+    array_init                                  { SLStatementNode arrayInit = $array_init.result;
+                                                  $result = factory.createAssignment(assignmentName, arrayInit);
+                                                }
 )
 (
     member_expression[$result, receiver, nestedAssignmentName, index] { $result = $member_expression.result; }

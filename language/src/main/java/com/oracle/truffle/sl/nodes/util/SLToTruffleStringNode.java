@@ -43,6 +43,7 @@ package com.oracle.truffle.sl.nodes.util;
 import static com.oracle.truffle.api.CompilerDirectives.shouldNotReachHere;
 
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
+import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.GenerateUncached;
 import com.oracle.truffle.api.dsl.Specialization;
@@ -54,10 +55,8 @@ import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.sl.SLLanguage;
 import com.oracle.truffle.sl.nodes.SLTypes;
-import com.oracle.truffle.sl.runtime.SLBigNumber;
-import com.oracle.truffle.sl.runtime.SLFunction;
-import com.oracle.truffle.sl.runtime.SLNull;
-import com.oracle.truffle.sl.runtime.SLStrings;
+import com.oracle.truffle.sl.nodes.array.SLArrayReadNode;
+import com.oracle.truffle.sl.runtime.*;
 
 /**
  * The node to normalize any value to an SL value. This is useful to reduce the number of values
@@ -114,6 +113,7 @@ public abstract class SLToTruffleStringNode extends Node {
     protected static TruffleString fromFunction(SLFunction value) {
         return value.getName();
     }
+
 
     @Specialization(limit = "LIMIT")
     protected static TruffleString fromInterop(Object value,

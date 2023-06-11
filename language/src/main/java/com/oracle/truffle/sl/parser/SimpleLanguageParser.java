@@ -11,18 +11,12 @@ import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.sl.SLLanguage;
 import com.oracle.truffle.sl.nodes.SLExpressionNode;
-import com.oracle.truffle.sl.nodes.SLRootNode;
 import com.oracle.truffle.sl.nodes.SLStatementNode;
-import com.oracle.truffle.sl.parser.SLParseError;
 
 import org.antlr.v4.runtime.atn.*;
 import org.antlr.v4.runtime.dfa.DFA;
 import org.antlr.v4.runtime.*;
-import org.antlr.v4.runtime.misc.*;
 import org.antlr.v4.runtime.tree.*;
-import java.util.List;
-import java.util.Iterator;
-import java.util.ArrayList;
 
 @SuppressWarnings({"all", "warnings", "unchecked", "unused", "cast"})
 public class SimpleLanguageParser extends Parser {
@@ -1461,7 +1455,9 @@ public class SimpleLanguageParser extends Parser {
 				match(T__12);
 				setState(300);
 				((Member_expressionContext)_localctx).array_init = array_init();
-				 ((Member_expressionContext)_localctx).result = (SLExpressionNode) ((Member_expressionContext)_localctx).array_init.result;
+				 SLStatementNode arrayInit = ((Member_expressionContext)_localctx).array_init.result;
+				                                                  ((Member_expressionContext)_localctx).result =  factory.createAssignment(assignmentName, (SLExpressionNode) arrayInit);
+				                                                
 				}
 				break;
 			}

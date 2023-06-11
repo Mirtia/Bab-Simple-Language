@@ -18,7 +18,7 @@ public final class SLArrayLiteralNode extends SLExpressionNode {
         }
 
         @Override
-//        @ExplodeLoop
+        @ExplodeLoop
         public Object executeGeneric(VirtualFrame frame) {
             Object[] arrayElements = new Object[this.arrayElementExprs.length];
             for (int i = 0; i < this.arrayElementExprs.length; i++) {
