@@ -60,23 +60,21 @@ public final class SLPForNode extends SLStatementNode {
     }
 
     public void executeVoid(VirtualFrame frame) {
-        ExecutorService executorService = Executors.newWorkStealingPool();
-        ForkJoinTask<?>[] tasks = new ForkJoinTask<?>[(int) this.end];
+        int numThreads = 4;
+        ExecutorService executorService = Executors.newFixedThreadPool(numThreads);
 
-        for (int i = 0; i < end; i++) {
-            final int index = i;
-            tasks[index] = ForkJoinTask.adapt(() -> {
-                System.out.println("This is a pfor iteration!");
+        for (long i = 0; i < end; i++) {
+            executorService.execute(() -> {
+                block.executeVoid(frame);
             });
         }
 
-        ForkJoinTask.invokeAll(tasks);
         executorService.shutdown();
 
         try {
             executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
         } catch (InterruptedException e) {
-            System.out.println("It should not reach here");
+            System.out.println("ExecutorService Failed.");
         }
     }
 
