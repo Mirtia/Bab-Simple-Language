@@ -48,6 +48,8 @@ import com.oracle.truffle.api.instrumentation.StandardTags;
 import com.oracle.truffle.api.instrumentation.Tag;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
+import com.oracle.truffle.sl.runtime.SLContext;
+
 
 /**
  * Base class for all SL nodes that produce a value and therefore benefit from type specialization.

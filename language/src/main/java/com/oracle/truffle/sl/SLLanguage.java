@@ -114,6 +114,7 @@ import com.oracle.truffle.sl.runtime.SLLanguageView;
 import com.oracle.truffle.sl.runtime.SLNull;
 import com.oracle.truffle.sl.runtime.SLObject;
 import com.oracle.truffle.sl.runtime.SLStrings;
+import org.graalvm.polyglot.Context;
 
 /**
  * SL is a simple language to demonstrate and showcase features of Truffle. The implementation is as
@@ -219,6 +220,13 @@ public final class SLLanguage extends TruffleLanguage<SLContext> {
     public SLLanguage() {
         counter++;
         this.rootShape = Shape.newBuilder().layout(SLObject.class).build();
+    }
+
+    @Override
+    protected boolean isThreadAccessAllowed(Thread thread,
+                                            boolean singleThreaded) {
+        // allow access from any thread instead of just one
+        return true;
     }
 
     @Override

@@ -41,12 +41,12 @@
 package com.oracle.truffle.sl.nodes.controlflow;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.sl.nodes.SLStatementNode;
+import com.oracle.truffle.sl.runtime.SLContext;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.*;
 
 @NodeInfo(shortName = "pfor", description = "The node implementing a pfor loop")
 public final class SLPForNode extends SLStatementNode {
@@ -59,25 +59,25 @@ public final class SLPForNode extends SLStatementNode {
         this.end = end;
     }
 
+    @Override
     public void executeVoid(VirtualFrame frame) {
-        int numThreads = 4;
-        ExecutorService executorService = Executors.newFixedThreadPool(numThreads);
-
+        List<Thread> threads = new ArrayList<Thread>();
         for (long i = 0; i < end; i++) {
-            executorService.execute(() -> {
-                block.executeVoid(frame);
-            });
+            Thread thread = SLContext.get(this).createThread(
+                    () -> block.executeVoid(frame)
+            );
+            threads.add(thread);
+            thread.start();
         }
 
-        executorService.shutdown();
-
-        try {
-            executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
-        } catch (InterruptedException e) {
-            System.out.println("ExecutorService Failed.");
+        for (Thread thread : threads) {
+            try {
+                thread.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
+
     }
-
-
 }
 

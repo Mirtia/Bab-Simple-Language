@@ -60,7 +60,7 @@ import com.oracle.truffle.api.nodes.NodeVisitor;
 import com.oracle.truffle.sl.nodes.SLStatementNode;
 import com.oracle.truffle.sl.nodes.local.SLScopedNode;
 import com.oracle.truffle.sl.nodes.local.SLWriteLocalVariableNode;
-
+import com.oracle.truffle.sl.runtime.SLContext;
 /**
  * A statement node that just executes a list of other statements.
  */

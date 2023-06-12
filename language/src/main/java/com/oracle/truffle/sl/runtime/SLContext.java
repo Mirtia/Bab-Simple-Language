@@ -164,6 +164,10 @@ public final class SLContext {
         return functionRegistry;
     }
 
+    public Thread createThread(Runnable runnable)
+    {
+        return this.env.createThread(runnable);
+    }
     /**
      * Adds all builtin functions to the {@link SLFunctionRegistry}. This method lists all
      * {@link SLBuiltinNode builtin implementation classes}.
