@@ -336,23 +336,31 @@ public class SLNodeFactory {
 
     public SLStatementNode createPFor(Token pforToken, SLStatementNode bodyNode,
                                       SLExpressionNode nameNode, SLExpressionNode startNode, SLExpressionNode endNode) {
+
+        ArrayList<SLBlockNode> blockNodes = new ArrayList<SLBlockNode>();
+
         if (bodyNode == null || nameNode == null || startNode == null || endNode == null) {
             return null;
         }
         final int start = pforToken.getStartIndex();
         final int end = bodyNode.getSourceEndIndex();
+        final int range = end - start;
 
+        Long startValue = (Long)startNode.executeGeneric(null);
         Long endValue = (Long)endNode.executeGeneric(null);
         List<SLStatementNode> statementNodes = new ArrayList<>();
 
-        startBlock();
-        SLExpressionNode iExpressionNode = new SLLongLiteralNode(0);
-        SLStatementNode assignmentNode = createAssignment(nameNode, iExpressionNode);
-        statementNodes.add(assignmentNode);
-        statementNodes.addAll(((SLBlockNode) bodyNode).getStatements());
-        SLBlockNode newBlock = (SLBlockNode) finishBlock(statementNodes,end - start, end - start + 1, true);
+        for(Long i = startValue; i<endValue;i++){
+            startBlock();
+            SLExpressionNode iExpressionNode = new SLLongLiteralNode(i);
+            SLStatementNode assignmentNode = createAssignment(nameNode, iExpressionNode);
+            statementNodes.add(assignmentNode);
+            statementNodes.addAll(((SLBlockNode) bodyNode).getStatements());
+            blockNodes.add((SLBlockNode) finishBlock(statementNodes,range, range + 1, true));
+        }
 
-        final SLPForNode slpForNode = new SLPForNode(newBlock, endValue);
+
+        final SLPForNode slpForNode = new SLPForNode(blockNodes, endValue);
         slpForNode.setSourceSection(start, end - start);
         return slpForNode;
     }

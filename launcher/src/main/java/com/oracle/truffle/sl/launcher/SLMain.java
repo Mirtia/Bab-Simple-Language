@@ -89,7 +89,7 @@ public final class SLMain {
         Context context;
         PrintStream err = System.err;
         try {
-            context = Context.newBuilder(SL).in(in).out(out).options(options).build();
+            context = Context.newBuilder(SL).in(in).out(out).allowCreateThread(true).options(options).build();
         } catch (IllegalArgumentException e) {
             err.println(e.getMessage());
             return 1;

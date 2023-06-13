@@ -45,29 +45,46 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.sl.nodes.SLStatementNode;
 import com.oracle.truffle.sl.runtime.SLContext;
 
+import java.util.concurrent.*;
 import java.util.ArrayList;
 import java.util.List;
 
 @NodeInfo(shortName = "pfor", description = "The node implementing a pfor loop")
 public final class SLPForNode extends SLStatementNode {
 
-    private final SLBlockNode block;
+    private final ArrayList<SLBlockNode> blocks;
     private final long end;
 
-    public SLPForNode(SLBlockNode block, long end) {
-        this.block = block;
+    public SLPForNode(ArrayList<SLBlockNode> blocks, long end) {
+        this.blocks = blocks;
         this.end = end;
     }
 
     @Override
     public void executeVoid(VirtualFrame frame) {
         List<Thread> threads = new ArrayList<Thread>();
-        for (long i = 0; i < end; i++) {
-            Thread thread = SLContext.get(this).createThread(
-                    () -> block.executeVoid(frame)
-            );
-            threads.add(thread);
-            thread.start();
+        BlockingQueue<Runnable> tasks = new LinkedBlockingQueue<>();
+        int numThreads = 4;
+        for(int i=0;i<numThreads;i++) {
+            threads.add(SLContext.get(this).createThread(
+                    () -> {
+                        while(true) {
+                            try {
+                                Runnable task = tasks.poll(5, TimeUnit.SECONDS);
+                                if (task != null)
+                                    task.run();
+                                else break;
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+            ));
+            threads.get(i).start();
+        }
+        for (int i = 0; i < end; i++) {
+            final int j = i;
+            tasks.add(() -> blocks.get(j).executeVoid(frame));
         }
 
         for (Thread thread : threads) {
