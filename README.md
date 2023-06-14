@@ -1,4 +1,4 @@
-# SimpleLanguage
+# SimpleLanguage (original repository)
 
 A simple demonstration language built using Truffle for GraalVM.
 
@@ -20,19 +20,14 @@ For instructions on how to get started please refer to [our website](http://www.
 
 ## Report and Presentation
 
-- [Presentation](https://docs.google.com/presentation/d/180SOOgU7AM3QzzeV-GJFUiRrVMYZ3TZ0hQXyZMIWFXI/edit?usp=sharing)
 - [Report](https://www.overleaf.com/read/jhmbtccksphy)
-
-## Notes
-
-To download the [Ideal Graph Visualizer](https://www.graalvm.org/latest/tools/igv/), go through **Archived Enterprise Releases** and select the matching versio to your architecture.
-
-In earlier versions of IGV, the dumps weren't trasmitted through the local network. Instead the were saved to a directory that you can manually import through the interface afterwards.
-
-In newer versions, there is an issue with the Coloring of the Nodes.
-
+- [Presentation](https://docs.google.com/presentation/d/180SOOgU7AM3QzzeV-GJFUiRrVMYZ3TZ0hQXyZMIWFXI/edit?usp=sharing)
 
 ## Features Implemented
+
+### for
+
+A for loop ``for(initialization;condition;step) {}`` using  existent while loop statement.
 
 ### pfor
 
@@ -64,3 +59,11 @@ String multiplication, similar with python ``"string"*4`` will result in ``strin
 ### Low priority:
 
 * [X] Move implementation of "string"*x from **master** to this branch
+
+## Notes
+
+To download the [Ideal Graph Visualizer](https://www.graalvm.org/latest/tools/igv/), go through **Archived Enterprise Releases** and select the matching versio to your architecture.
+
+In earlier versions of IGV, the dumps weren't trasmitted through the local network. Instead the were saved to a directory that you can manually import through the interface afterwards.
+
+In newer versions, there is an issue with the Coloring of the Nodes.
