@@ -351,14 +351,13 @@ public class SLNodeFactory {
         Long endValue = (Long) endNode.executeGeneric(null);
 
         for (long i = startValue; i < endValue; i++) {
+            startBlock();
             List<SLStatementNode> statementNodes = new ArrayList<>();
-//            startBlock();
             SLExpressionNode iExpressionNode = new SLLongLiteralNode(i);
             iExpressionNode.addExpressionTag();
 //            Not sure about the length
             iExpressionNode.setSourceSection(nameNode.getSourceCharIndex(), nameNode.getSourceLength() + 1);
             SLStatementNode assignmentNode = createAssignment(nameNode, iExpressionNode);
-            SLExpressionNode readTest = createRead(nameNode);
             statementNodes.add(assignmentNode);
             statementNodes.addAll(((SLBlockNode) bodyNode).getStatements());
             blockNodes.add((SLBlockNode) finishBlock(statementNodes, bodyStart, bodyRange, true));

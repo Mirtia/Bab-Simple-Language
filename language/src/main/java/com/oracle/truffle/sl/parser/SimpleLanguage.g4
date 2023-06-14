@@ -220,13 +220,18 @@ pfor_statement returns [SLStatementNode result]
 :
 f='pfor'
 o='('
-IDENTIFIER
+IDENTIFIER                                       { SLExpressionNode assignmentName = factory.createStringLiteral($IDENTIFIER, false); }
 '='
-start=arithmetic
+start=arithmetic                                 { SLExpressionNode assignmentNode = factory.createAssignment(assignmentName, $start.result); }
 ':'
 end=arithmetic
 c=')'
-body=block[true, null]                           { $result = factory.createPFor($f, $body.result, factory.createStringLiteral($IDENTIFIER, false), $start.result, $end.result); }
+body=block[true, null]                           { SLStatementNode pfor = factory.createPFor($f, $body.result, assignmentName, $start.result, $end.result);
+                                                   List<SLStatementNode> pforNode = new ArrayList<>();
+                                                   pforNode.add(assignmentNode);
+                                                   pforNode.add(pfor);
+                                                   $result = factory.finishBlock(pforNode, $o.getStartIndex(), $body.result.getSourceEndIndex() - $o.getStartIndex() + 1, false);
+                                                }
 ;
 
 
