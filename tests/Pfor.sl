@@ -2,9 +2,12 @@ function e(a, b) {
 	return a == b;
 }
 
+
 function main() {  
-    pfor(i=0:10)
+    i = 0;
+    pfor(i=5:10)
     {
-       println("This is a pfor i: " + k);
+        z = 10;
+        println("This is a pfor i: " + i);
     }
 }   

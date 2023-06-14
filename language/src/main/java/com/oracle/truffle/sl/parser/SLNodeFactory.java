@@ -293,11 +293,11 @@ public class SLNodeFactory {
     /**
      * Returns an {@link SLWhileNode} for the given parameters.
      *
-     * @param whileToken The token containing the while node's info
+     * @param whileToken    The token containing the while node's info
      * @param conditionNode The conditional node for this while loop
-     * @param bodyNode The body of the while loop
+     * @param bodyNode      The body of the while loop
      * @return A SLWhileNode built using the given parameters. null if either conditionNode or
-     *         bodyNode is null.
+     * bodyNode is null.
      */
     public SLStatementNode createWhile(Token whileToken, SLExpressionNode conditionNode, SLStatementNode bodyNode) {
         if (conditionNode == null || bodyNode == null) {
@@ -313,7 +313,7 @@ public class SLNodeFactory {
     }
 
     public SLStatementNode createArray(List<SLExpressionNode> expressionNodes) {
-       return new SLArrayLiteralNode(this.arrayShape, expressionNodes);
+        return new SLArrayLiteralNode(this.arrayShape, expressionNodes);
     }
 
     public SLStatementNode createArrayRead(SLExpressionNode arrayExpr, SLExpressionNode indexExpr) {
@@ -342,38 +342,42 @@ public class SLNodeFactory {
         if (bodyNode == null || nameNode == null || startNode == null || endNode == null) {
             return null;
         }
-        final int start = pforToken.getStartIndex();
-        final int end = bodyNode.getSourceEndIndex();
-        final int range = end - start;
+        final int pforStart = pforToken.getStartIndex();
+        final int bodyStart = bodyNode.getSourceCharIndex();
+        final int bodyEnd = bodyNode.getSourceEndIndex();
+        final int bodyRange = bodyEnd - bodyStart;
 
-        Long startValue = (Long)startNode.executeGeneric(null);
-        Long endValue = (Long)endNode.executeGeneric(null);
-        List<SLStatementNode> statementNodes = new ArrayList<>();
+        Long startValue = (Long) startNode.executeGeneric(null);
+        Long endValue = (Long) endNode.executeGeneric(null);
 
-        for(Long i = startValue; i<endValue;i++){
-            startBlock();
+        for (long i = startValue; i < endValue; i++) {
+            List<SLStatementNode> statementNodes = new ArrayList<>();
+//            startBlock();
             SLExpressionNode iExpressionNode = new SLLongLiteralNode(i);
+            iExpressionNode.addExpressionTag();
+//            Not sure about the length
+            iExpressionNode.setSourceSection(nameNode.getSourceCharIndex(), nameNode.getSourceLength() + 1);
             SLStatementNode assignmentNode = createAssignment(nameNode, iExpressionNode);
+            SLExpressionNode readTest = createRead(nameNode);
             statementNodes.add(assignmentNode);
             statementNodes.addAll(((SLBlockNode) bodyNode).getStatements());
-            blockNodes.add((SLBlockNode) finishBlock(statementNodes,range, range + 1, true));
+            blockNodes.add((SLBlockNode) finishBlock(statementNodes, bodyStart, bodyRange, true));
         }
 
-
-        final SLPForNode slpForNode = new SLPForNode(blockNodes, endValue);
-        slpForNode.setSourceSection(start, end - start);
+        final SLPForNode slpForNode = new SLPForNode(blockNodes, startValue, endValue);
+        slpForNode.setSourceSection(pforStart, bodyRange);
         return slpForNode;
     }
 
     /**
      * Returns an {@link SLIfNode} for the given parameters.
      *
-     * @param ifToken The token containing the if node's info
+     * @param ifToken       The token containing the if node's info
      * @param conditionNode The condition node of this if statement
-     * @param thenPartNode The then part of the if
-     * @param elsePartNode The else part of the if (null if no else part)
+     * @param thenPartNode  The then part of the if
+     * @param elsePartNode  The else part of the if (null if no else part)
      * @return An SLIfNode for the given parameters. null if either conditionNode or thenPartNode is
-     *         null.
+     * null.
      */
     public SLStatementNode createIf(Token ifToken, SLExpressionNode conditionNode, SLStatementNode thenPartNode, SLStatementNode elsePartNode) {
         if (conditionNode == null || thenPartNode == null) {
@@ -391,7 +395,7 @@ public class SLNodeFactory {
     /**
      * Returns an {@link SLReturnNode} for the given parameters.
      *
-     * @param t The token containing the return node's info
+     * @param t         The token containing the return node's info
      * @param valueNode The value of the return (null if not returning a value)
      * @return An SLReturnNode for the given parameters.
      */
@@ -407,11 +411,11 @@ public class SLNodeFactory {
      * Returns the corresponding subclass of {@link SLExpressionNode} for binary expressions. </br>
      * These nodes are currently not instrumented.
      *
-     * @param opToken The operator of the binary expression
-     * @param leftNode The left node of the expression
+     * @param opToken   The operator of the binary expression
+     * @param leftNode  The left node of the expression
      * @param rightNode The right node of the expression
      * @return A subclass of SLExpressionNode using the given parameters based on the given opToken.
-     *         null if either leftNode or rightNode is null.
+     * null if either leftNode or rightNode is null.
      */
     public SLExpressionNode createBinary(Token opToken, SLExpressionNode leftNode, SLExpressionNode rightNode) {
         if (leftNode == null || rightNode == null) {
@@ -473,11 +477,11 @@ public class SLNodeFactory {
     /**
      * Returns an {@link SLInvokeNode} for the given parameters.
      *
-     * @param functionNode The function being called
+     * @param functionNode   The function being called
      * @param parameterNodes The parameters of the function call
-     * @param finalToken A token used to determine the end of the sourceSelection for this call
+     * @param finalToken     A token used to determine the end of the sourceSelection for this call
      * @return An SLInvokeNode for the given parameters. null if functionNode or any of the
-     *         parameterNodes are null.
+     * parameterNodes are null.
      */
     public SLExpressionNode createCall(SLExpressionNode functionNode, List<SLExpressionNode> parameterNodes, Token finalToken) {
         if (functionNode == null || containsNull(parameterNodes)) {
@@ -497,7 +501,7 @@ public class SLNodeFactory {
     /**
      * Returns an {@link SLWriteLocalVariableNode} for the given parameters.
      *
-     * @param nameNode The name of the variable being assigned
+     * @param nameNode  The name of the variable being assigned
      * @param valueNode The value to be assigned
      * @return An SLExpressionNode for the given parameters. null if nameNode or valueNode is null.
      */
@@ -508,8 +512,8 @@ public class SLNodeFactory {
     /**
      * Returns an {@link SLWriteLocalVariableNode} for the given parameters.
      *
-     * @param nameNode The name of the variable being assigned
-     * @param valueNode The value to be assigned
+     * @param nameNode      The name of the variable being assigned
+     * @param valueNode     The value to be assigned
      * @param argumentIndex null or index of the argument the assignment is assigning
      * @return An SLExpressionNode for the given parameters. null if nameNode or valueNode is null.
      */
@@ -548,11 +552,11 @@ public class SLNodeFactory {
      *
      * @param nameNode The name of the variable/function being read
      * @return either:
-     *         <ul>
-     *         <li>A SLReadLocalVariableNode representing the local variable being read.</li>
-     *         <li>A SLFunctionLiteralNode representing the function definition.</li>
-     *         <li>null if nameNode is null.</li>
-     *         </ul>
+     * <ul>
+     * <li>A SLReadLocalVariableNode representing the local variable being read.</li>
+     * <li>A SLFunctionLiteralNode representing the function definition.</li>
+     * <li>null if nameNode is null.</li>
+     * </ul>
      */
     public SLExpressionNode createRead(SLExpressionNode nameNode) {
         if (nameNode == null) {
@@ -621,9 +625,9 @@ public class SLNodeFactory {
      * Returns an {@link SLReadPropertyNode} for the given parameters.
      *
      * @param receiverNode The receiver of the property access
-     * @param nameNode The name of the property being accessed
+     * @param nameNode     The name of the property being accessed
      * @return An SLExpressionNode for the given parameters. null if receiverNode or nameNode is
-     *         null.
+     * null.
      */
     public SLExpressionNode createReadProperty(SLExpressionNode receiverNode, SLExpressionNode nameNode) {
         if (receiverNode == null || nameNode == null) {
@@ -644,10 +648,10 @@ public class SLNodeFactory {
      * Returns an {@link SLWritePropertyNode} for the given parameters.
      *
      * @param receiverNode The receiver object of the property assignment
-     * @param nameNode The name of the property being assigned
-     * @param valueNode The value to be assigned
+     * @param nameNode     The name of the property being assigned
+     * @param valueNode    The value to be assigned
      * @return An SLExpressionNode for the given parameters. null if receiverNode, nameNode or
-     *         valueNode is null.
+     * valueNode is null.
      */
     public SLExpressionNode createWriteProperty(SLExpressionNode receiverNode, SLExpressionNode nameNode, SLExpressionNode valueNode) {
         if (receiverNode == null || nameNode == null || valueNode == null) {

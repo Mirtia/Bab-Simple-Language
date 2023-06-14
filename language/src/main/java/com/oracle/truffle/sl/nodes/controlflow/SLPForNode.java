@@ -53,10 +53,14 @@ import java.util.List;
 public final class SLPForNode extends SLStatementNode {
 
     private final ArrayList<SLBlockNode> blocks;
+
+    private final long start;
     private final long end;
 
-    public SLPForNode(ArrayList<SLBlockNode> blocks, long end) {
+
+    public SLPForNode(ArrayList<SLBlockNode> blocks, long start, long end) {
         this.blocks = blocks;
+        this.start = start;
         this.end = end;
     }
 
@@ -65,10 +69,10 @@ public final class SLPForNode extends SLStatementNode {
         List<Thread> threads = new ArrayList<Thread>();
         BlockingQueue<Runnable> tasks = new LinkedBlockingQueue<>();
         int numThreads = 4;
-        for(int i=0;i<numThreads;i++) {
+        for (int i = 0; i < numThreads; i++) {
             threads.add(SLContext.get(this).createThread(
                     () -> {
-                        while(true) {
+                        while (true) {
                             try {
                                 Runnable task = tasks.poll(5, TimeUnit.SECONDS);
                                 if (task != null)
@@ -82,8 +86,9 @@ public final class SLPForNode extends SLStatementNode {
             ));
             threads.get(i).start();
         }
-        for (int i = 0; i < end; i++) {
-            final int j = i;
+
+        for (long i = 0; i < end - start; i++) {
+            final int j = (int)i;
             tasks.add(() -> blocks.get(j).executeVoid(frame));
         }
 
