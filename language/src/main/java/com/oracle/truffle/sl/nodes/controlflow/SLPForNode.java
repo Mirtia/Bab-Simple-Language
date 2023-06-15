@@ -74,7 +74,7 @@ public final class SLPForNode extends SLStatementNode {
                     () -> {
                         while (true) {
                             try {
-                                Runnable task = tasks.poll(5, TimeUnit.SECONDS);
+                                Runnable task = tasks.poll(1000, TimeUnit.MICROSECONDS);
                                 if (task != null)
                                     task.run();
                                 else break;
@@ -87,7 +87,7 @@ public final class SLPForNode extends SLStatementNode {
             threads.get(i).start();
         }
 
-        for (long i = 0; i < end - start; i++) {
+        for (long i = 0; i <= end - start; i++) {
             final int j = (int)i;
             tasks.add(() -> blocks.get(j).executeVoid(frame));
         }

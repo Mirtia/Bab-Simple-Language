@@ -350,7 +350,7 @@ public class SLNodeFactory {
         Long startValue = (Long) startNode.executeGeneric(null);
         Long endValue = (Long) endNode.executeGeneric(null);
 
-        for (long i = startValue; i < endValue; i++) {
+        for (long i = startValue; i <= endValue; i++) {
             startBlock();
             List<SLStatementNode> statementNodes = new ArrayList<>();
             SLExpressionNode iExpressionNode = new SLLongLiteralNode(i);

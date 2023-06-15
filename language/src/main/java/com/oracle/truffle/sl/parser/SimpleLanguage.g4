@@ -327,12 +327,12 @@ factor returns [SLExpressionNode result]
         member_expression[null, null, assignmentName, null] { $result = $member_expression.result; }
     |
        '{'
-        NUMERIC_LITERAL                             { SLExpressionNode index = factory.createNumericLiteral($NUMERIC_LITERAL); }
+        index=expression
         '}'
         (
-            member_expression[null, null, assignmentName, index] { $result = $member_expression.result; }
+            member_expression[null, null, assignmentName, $index.result] { $result = $member_expression.result; }
         |
-                                                { $result = factory.createArrayRead(assignmentName, index); }
+                                                { $result = factory.createArrayRead(assignmentName, $index.result); }
         )
     |
                                                 { $result = factory.createRead(assignmentName); }
