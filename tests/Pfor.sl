@@ -4,6 +4,6 @@ function main() {
     {
         arr_at_i = arr{i};
         println("This is a pfor i: " + i);
-        println("This is arr at " + i + ": " + arr_at_i);
+        println("This is arr at index " + i + ": " + arr_at_i);
     }   
 }   
