@@ -114,7 +114,7 @@ String multiplication, similar with python ``"string"*4`` will result in ``strin
 
 ## Notes
 
-To download the [Ideal Graph Visualizer](https://www.graalvm.org/latest/tools/igv/), go through **Archived Enterprise Releases** and select the matching versio to your architecture.
+To download the [Ideal Graph Visualizer](https://www.graalvm.org/latest/tools/igv/), go through **Archived Enterprise Releases** and select the matching version to your architecture.
 
 In earlier versions of IGV, the dumps weren't trasmitted through the local network. Instead the were saved to a directory that you can manually import through the interface afterwards.
 
